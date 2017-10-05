@@ -14,16 +14,11 @@ parameters:
     label: Name preffix
     description: Name preffix used to concat to all the resources (unique for K5 project)
     default: "cnets-iccs"
-  snapshot:
+  snapshot_name:
     type: string
-    label: Snapshot name or ID
+    label: Snapshot name
     description: Snapshot to be used for compute instance
     default: "cnets-host"
-  k5_ubuntu_image:
-    type: string
-    label: Image name or ID
-    description: Image to be used for compute instance
-    default: "Ubuntu Server 16.04 LTS (English) 01"
   flavor:
     type: string
     label: Flavor
@@ -86,7 +81,7 @@ resources:
             "$name_preffix": { get_param: name_preffix } 
       size: 20
       volume_type: "M1"
-      image : { get_param: k5_ubuntu_image }
+      snapshot_name : { get_param: snapshot_name }
 
 # Build a docker server using the system volume defined above
   docker_server:
@@ -102,7 +97,7 @@ resources:
       key_name: { get_param: key_pair }
       flavor: { get_param: flavor }
       admin_user: ubuntu
-      snapshot : { get_param: snapshot }
+      snapshot_name : { get_param: snapshot_name }
       metadata: { "fcx.autofailover": True }
       block_device_mapping: [{"volume_size": "20", "volume_id": { get_resource: docker_sys_vol }, "delete_on_termination": True, "device_name": "/dev/vda"}]
       networks:
@@ -117,14 +112,6 @@ resources:
             runcmd:
               # Config hostname resolution
               - echo $app_ip `hostname` >> /etc/hosts
-              # Install Docker
-              - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-              - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-              - sudo apt-get update
-              - apt-cache policy docker-ce
-              - sudo apt-get install -y docker-ce
-              - sleep 60
-              - sudo usermod -aG docker ubuntu
               - sudo docker run -d -p 80:8080 madhosoi/k5websample:v.1.0
                           
           params:
