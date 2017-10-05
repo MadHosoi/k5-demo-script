@@ -5,7 +5,7 @@ heat_template_version: 2013-05-23
 # on Fujitsu's Cloud Service K5 IaaS Platform
 #
 #
-description: Deploy Network & Ubuntu Image with Docker
+description: Deploy Network
 
 # Input parameters
 parameters:

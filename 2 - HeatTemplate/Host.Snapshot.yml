@@ -5,7 +5,7 @@ heat_template_version: 2013-05-23
 # on Fujitsu's Cloud Service K5 IaaS Platform
 #
 #
-description: Deploy Host with Docker
+description: Deploy Host Snapshot with Docker
 
 # Input parameters
 parameters:
@@ -14,6 +14,11 @@ parameters:
     label: Name preffix
     description: Name preffix used to concat to all the resources (unique for K5 project)
     default: "cnets-iccs"
+  snapshot:
+    type: string
+    label: Snapshot name or ID
+    description: Snapshot to be used for compute instance
+    default: "cnets-host"
   k5_ubuntu_image:
     type: string
     label: Image name or ID
@@ -97,7 +102,7 @@ resources:
       key_name: { get_param: key_pair }
       flavor: { get_param: flavor }
       admin_user: ubuntu
-      image : { get_param: k5_ubuntu_image }
+      snapshot : { get_param: snapshot }
       metadata: { "fcx.autofailover": True }
       block_device_mapping: [{"volume_size": "20", "volume_id": { get_resource: docker_sys_vol }, "delete_on_termination": True, "device_name": "/dev/vda"}]
       networks:
