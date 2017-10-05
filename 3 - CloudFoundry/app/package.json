@@ -1,0 +1,22 @@
+{
+  "name": "k5-sample",
+  "version": "1.0.0",
+  "description": "K5 Web Sample",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "keywords": [
+    "K5",
+    "Node.js"
+  ],
+  "author": "Miguel Angel Diego Alfageme",
+  "license": "MIT",
+  "dependencies": {
+    "cfenv": "^1.0.4",
+    "express": "^4.15.5",
+    "pug": "^2.0.0-rc.4",
+    "request": "^2.82.0"
+  }
+}

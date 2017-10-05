@@ -1,0 +1,71 @@
+h1{
+    background-color: #990B0B;
+    color: white;
+    margin: 0px;
+    padding: 6px;
+    font-size: 14pt;
+}
+
+body{
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: white;
+    margin: 0px;
+    padding: 0px;
+}
+
+ul {
+    margin-bottom: 14px;
+    list-style: none;
+}
+li { 
+    display: block;
+    width: 500px; 
+    height: 30px;  
+    margin: 0 0 7px 0;
+}
+li a { 
+    width: 400px; 
+    height: 30px;
+    margin: 0 0 7px 0;
+    background: #F7F5F2;
+    font-size: 18px;
+    color: #333;
+    padding: 5px 10 4 20px;
+    text-decoration: none;
+}
+
+.downloadicon{
+    /*background: #F7F5F2 url(data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAABsAAAAcCAYAAACQ0cTtAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAgY0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAAAcVJREFUSEvtVtFNxDAM7QiMwAiMwAiMwAhs4PZSic8bgRFuhI5wI3QERjjyYjuJrnaagoSExElRT4njZzvPLxmG/99vVIBofhrHcB6neYnjM46bfBfME4XnH8cBJwIA5zoAqKOaD+u3QSUTdjaGD6LTixU95rGeg4mZHsqybO6PNpV6ClcNrguQpjBylOFKRA9dm8QI9hVgO0OOjg/fA6LT/IqA8LXLWgCbZ6hkaBlVhFm8rIVYCNq2IXp/lKxcJ3DeAyZ2F/hDtTZB0TS/pUWnPLqhFyyxFP5iyTdgykBk2CKFBeadr1spdWIB1cy8B1MGOvtW89zaYKUVarCa6jYYK822jCxBN2eTyBKaVhqX7RMJGvugowYYC63JHpCm0sZaJ9N/i1ScdQrksmWjOAQrzWZ1AE22RQcaoOmvRBJWt1mzlMkNEAXYsy0C4bA709/JLjWrKnwDSHsMtm4bSXY41KiNRuer4DYaX/RVfLR7dshR7QDaIpyEPN3ke0qU99fs8whwDyZydwxInUiG8t4Iq/XWgLozSFzXq2lHW5tnKJepgOZ3yKbX+Omwc0Yt0a3XkKkAQzWSDKVLFPMHb/RezL9l9wWuQAy9JbrovAAAAABJRU5ErkJggg==) 97% center no-repeat;*/
+}
+
+li .delete{ 
+    width: 20px; 
+    height: 30px;
+    margin: 0 0 0 0;
+    background: rgb(63, 63, 63);
+    font-size: 18px;
+    color: #ECECEC;
+    text-decoration: none;
+}
+
+li .delete:hover { background-color: #000000; }
+
+li a:hover { background-color: #EFEFEF; }
+
+.orange { border-left: 5px solid #F5876E; }
+
+.blue{ border-left: 5px solid #61A8DC; }
+
+.green{ border-left: 5px solid #8EBD40; }
+
+.purple { border-left: 5px solid #988CC3; }
+
+.gold { border-left: 5px solid #D8C86E; }
+
+form {
+    margin-bottom: 14px;
+    list-style: none;
+}
+input{
+
+}
