@@ -1,0 +1,206 @@
+heat_template_version: 2013-05-23
+# Author: Miguel Angel Diego Alfageme
+# Date: 28/08/2017
+# Purpose: Deploy Infraestructure needed to make a Docker network 
+# on Fujitsu's Cloud Service K5 IaaS Platform
+#
+#
+description: Deploy Network & Ubuntu Image with Docker
+
+# Input parameters
+parameters:
+  name_preffix:
+    type: string
+    label: Name preffix
+    description: Name preffix used to concat to all the resources (unique for K5 project)
+    default: "cnets-iccs"
+  k5_ubuntu_image:
+    type: string
+    label: Image name or ID
+    description: Image to be used for compute instance
+    default: "Ubuntu Server 16.04 LTS (English) 01"
+  flavor:
+    type: string
+    label: Flavor
+    description: Type of instance (flavor) to be used
+    default: "C-1"
+  key_pair:
+    type: string
+    label: Key name
+    description: Name of key-pair to be used for compute instance
+    default: "cnets-mdiego"
+  public_net:
+    type: string
+    label: public network id
+    description: id of public network to supply floating ips
+    default: "05e4ab97-297e-4470-821a-67505973e687"
+  privatecidr:
+    type: string
+    label: CIDR
+    description: Private CIDR
+    default: "10.20.20.0/24"
+  routerid:
+    type: string
+    label: Router ID
+    description: Router to link public and private net
+    default: "fa137d69-f35c-4160-b6e1-5927033eb465"
+  az:
+    type: string
+    label: Availability Zone
+    description: Region AZ to use
+    default: "es-1a"
+  my_ip:
+    type: string
+    label: External management IP
+    description: IP address allowed for access to our infra
+    default: "0.0.0.0/0" 
+
+# K5 Infrastructure resources to be built
+resources:
+
+# Create docker & http access
+  security_group:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      description: docker infra security group
+      name:
+        str_replace:
+          template: "$name_preffix-access"
+          params:
+            "$name_preffix": { get_param: name_preffix } 
+      rules:
+        # allow inbound ssh and ping from my ip
+        - remote_ip_prefix: { get_param: my_ip }
+          protocol: tcp
+          port_range_min: 22
+          port_range_max: 22
+        - remote_ip_prefix: { get_param: my_ip }
+          protocol: icmp
+        - remote_ip_prefix: 0.0.0.0/0
+          protocol: tcp
+          port_range_min: 80
+          port_range_max: 80
+        - remote_ip_prefix: { get_param: privatecidr }
+          protocol: tcp
+          port_range_min: 1
+          port_range_max: 65535
+        - remote_ip_prefix: { get_param: privatecidr }
+          protocol: udp
+          port_range_min: 1
+          port_range_max: 65535
+        - remote_ip_prefix: { get_param: privatecidr }
+          protocol: icmp       
+  
+  private_network:
+    type: OS::Neutron::Net
+    properties:
+      availability_zone: { get_param: az }
+      name:
+        str_replace:
+          template: "$name_preffix-net"
+          params:
+            "$name_preffix": { get_param: name_preffix } 
+
+  private_subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      availability_zone: { get_param: az }
+      network_id: { get_resource: private_network }
+      cidr: {get_param: privatecidr}
+      name:
+        str_replace:
+          template: "$name_preffix-subnet"
+          params:
+            "$name_preffix": { get_param: name_preffix } 
+      dns_nameservers:
+        - 62.60.39.9
+        - 62.60.39.10
+        - 8.8.8.8
+  
+  server_port:
+    type: OS::Neutron::Port
+    properties:
+      availability_zone: { get_param: az }
+      network: { get_resource: private_network }
+      security_groups:
+        - { get_resource: security_group }
+        
+  # Connect an interface on the network's subnet to the router
+  router_interface:
+    type: OS::Neutron::RouterInterface
+    depends_on: [private_subnet]
+    properties:
+      router_id: { get_param: routerid }
+      subnet_id: { get_resource: private_subnet }
+
+  # -------------------------------------------------------------------------
+  # Create a system volume for use with the server
+  docker_sys_vol:
+    type: OS::Cinder::Volume
+    properties:
+      availability_zone: { get_param: az }
+      name:
+        str_replace:
+          template: "$name_preffix-box"
+          params:
+            "$name_preffix": { get_param: name_preffix } 
+      size: 20
+      volume_type: "M1"
+      image : { get_param: k5_ubuntu_image }
+
+# Build a docker server using the system volume defined above
+  docker_server:
+    type: OS::Nova::Server
+    depends_on: [ server_port, docker_sys_vol ]
+    properties:
+      availability_zone: { get_param: az }
+      name:
+        str_replace:
+          template: "$name_preffix-server"
+          params:
+            "$name_preffix": { get_param: name_preffix } 
+      key_name: { get_param: key_pair }
+      flavor: { get_param: flavor }
+      admin_user: ubuntu
+      image : { get_param: k5_ubuntu_image }
+      metadata: { "fcx.autofailover": True }
+      block_device_mapping: [{"volume_size": "20", "volume_id": { get_resource: docker_sys_vol }, "delete_on_termination": True, "device_name": "/dev/vda"}]
+      networks:
+        - port: { get_resource: server_port }
+      user_data_format: RAW
+      user_data:
+        str_replace:
+          template: |
+            #cloud-config
+            write_files:
+            apt_update: true
+            runcmd:
+              # Config hostname resolution
+              - echo $app_ip `hostname` >> /etc/hosts
+              # Install Docker
+              - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+              - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+              - sudo apt-get update
+              - apt-cache policy docker-ce
+              - sudo apt-get install -y docker-ce
+              - sleep 60
+              - sudo usermod -aG docker ubuntu
+                          
+          params:
+            $app_ip: { get_attr: [server_port, fixed_ips, 0, ip_address]}
+            message: "Installation of Docker Service Complete"
+# Allocate a floating/global ip address
+  docker_server_floating_ip:
+    type: OS::Neutron::FloatingIP
+    properties:
+      availability_zone: { get_param: az }
+      floating_network_id: { get_param: public_net }
+
+# Assign a floating/global ip address to the fixed server ip address
+  docker_server_floating_ip_association:
+    type: OS::Neutron::FloatingIPAssociation
+    depends_on: [docker_server_floating_ip, server_port]
+    properties:
+      floatingip_id: { get_resource: docker_server_floating_ip }
+      port_id: { get_resource: server_port }
+# ----------------------------------------------------------------------------------
