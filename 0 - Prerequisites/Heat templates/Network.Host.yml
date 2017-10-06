@@ -185,7 +185,6 @@ resources:
               - sudo apt-get install -y docker-ce
               - sleep 90
               - sudo usermod -aG docker ubuntu
-              - sudo reboot
                           
           params:
             $app_ip: { get_attr: [server_port, fixed_ips, 0, ip_address]}

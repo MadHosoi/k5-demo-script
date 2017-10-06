@@ -14,11 +14,16 @@ parameters:
     label: Name preffix
     description: Name preffix used to concat to all the resources (unique for K5 project)
     default: "cnets-iccs"
-  snapshot_name:
+  snapshot_id:
     type: string
-    label: Snapshot name
+    label: Snapshot Id
     description: Snapshot to be used for compute instance
-    default: "cnets-host"
+    default: "c77b7dab-43e4-40a4-9958-3e03b221bc2e"
+  k5_ubuntu_image:
+    type: string
+    label: Image name or ID
+    description: Image to be used for compute instance
+    default: "Ubuntu Server 16.04 LTS (English) 01"
   flavor:
     type: string
     label: Flavor
@@ -81,7 +86,7 @@ resources:
             "$name_preffix": { get_param: name_preffix } 
       size: 20
       volume_type: "M1"
-      snapshot_name : { get_param: snapshot_name }
+      snapshot_id : { get_param: snapshot_id }
 
 # Build a docker server using the system volume defined above
   docker_server:
@@ -97,9 +102,15 @@ resources:
       key_name: { get_param: key_pair }
       flavor: { get_param: flavor }
       admin_user: ubuntu
-      snapshot_name : { get_param: snapshot_name }
       metadata: { "fcx.autofailover": True }
-      block_device_mapping: [{"volume_size": "20", "volume_id": { get_resource: docker_sys_vol }, "delete_on_termination": True, "device_name": "/dev/vda"}]
+      image : { get_param: k5_ubuntu_image }
+      block_device_mapping: [
+        {
+          "volume_size": "20", 
+          "volume_id": { get_resource: docker_sys_vol }, 
+          "delete_on_termination": True, 
+          "device_name": "/dev/vda"
+          }]
       networks:
         - port: { get_resource: server_port }
       user_data_format: RAW
