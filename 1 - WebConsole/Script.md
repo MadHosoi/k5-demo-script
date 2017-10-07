@@ -1,7 +1,17 @@
+# Create VM manually
+
+name : cnets-k5websample1
+Snapshot
+
+Allocate Public IP
 
 # Connect via SSH
 
 ssh -i Secrets/cnets-mdiego.pem ubuntu@<externalip>
+
+# Run docker instance
+
+docker run -d -p 80:8080 madhosoi/k5websample:v.1.0
 
 # Script with bash commands
 
@@ -16,4 +26,4 @@ apt-cache policy docker-ce
 sudo apt-get install -y docker-ce
 sudo usermod -aG docker ubuntu
 
-sudo docker run -d -p 80:8080 madhosoi/k5websample:v.1.0
+docker run -d -p 80:8080 madhosoi/k5websample:v.1.0

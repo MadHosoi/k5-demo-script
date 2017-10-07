@@ -16,11 +16,6 @@ import getopt
 from k5contractsettings import *
 from time import sleep
 
-proxies = {
-       'http': 'http://10.142.74.132:82',
-       'https': 'http://10.142.74.132:82'
-    }
-
 def get_scoped_token(adminUser, adminPassword, contract, projectid, region):
     """Ket a K5 project scoped token
 
@@ -166,9 +161,9 @@ def main(argv):
         opts, args = getopt.getopt(argv,"hi:n:",["inputfile=","heatname="])
     except getopt.GetoptError:
         print('k5heatdeploy.py -i <inputfile> -n <heatname>')
-        sys.exit(2)
+        #sys.exit(2)
     if not opts:
-        print('k5heatdeploy.py -i <inputfile> -n <heatname>')
+        #print('k5heatdeploy.py -i <inputfile> -n <heatname>')
         sys.exit(2)
     for opt, arg in opts:
         if opt == '-h':
@@ -177,12 +172,16 @@ def main(argv):
         elif opt in ("-i", "--ifile"):
             inputfile = arg
         elif opt in ("-n", "--heatname"):
-            container = arg
-
+            heatname = arg
+    if inputfile == '':
+        inputfile = '0 - Prerequisites/Heat templates/Network.Host.yml'
+    if heatname == '':
+        heatname = 'cnets-iccs-host2'
+        
     print "Authorizing.."
     k5token = get_scoped_token(adminUser, adminPassword, contract, demoProjectA, region)
 
-    print(k5token)
+    print k5token
     print "Authorized."
     
     stack_to_deploy = open(inputfile, 'r').read()

@@ -18,7 +18,7 @@ parameters:
     type: string
     label: Snapshot Id
     description: Snapshot to be used for compute instance
-    default: "c77b7dab-43e4-40a4-9958-3e03b221bc2e"
+    default: "7eaec18a-ff36-43ed-b9b3-13db74e8cbb7"
   k5_ubuntu_image:
     type: string
     label: Image name or ID
@@ -43,7 +43,7 @@ parameters:
     type: string
     label: private network id
     description: id of private network 
-    default: "8fc9be98-fc49-4909-9c60-3a69ade9ed23"
+    default: "df7ca7ec-b5d4-4568-abdc-d8b3cbc504a1"
   security_group:
     type: string
     label: security group
@@ -96,7 +96,7 @@ resources:
       availability_zone: { get_param: az }
       name:
         str_replace:
-          template: "$name_preffix-server"
+          template: "$name_preffix-k5sample2"
           params:
             "$name_preffix": { get_param: name_preffix } 
       key_name: { get_param: key_pair }
@@ -122,8 +122,7 @@ resources:
             apt_update: true
             runcmd:
               # Config hostname resolution
-              - echo $app_ip `hostname` >> /etc/hosts
-              - sudo docker run -d -p 80:8080 madhosoi/k5websample:v.1.0
+              - docker run -d -p 80:8080 madhosoi/k5websample:v.1.0
                           
           params:
             $app_ip: { get_attr: [server_port, fixed_ips, 0, ip_address]}
