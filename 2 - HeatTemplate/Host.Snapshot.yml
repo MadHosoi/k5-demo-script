@@ -5,7 +5,7 @@ heat_template_version: 2013-05-23
 # on Fujitsu's Cloud Service K5 IaaS Platform
 #
 #
-description: Deploy Host Snapshot with Docker
+description: Deploy Host from Snapshot with Docker
 
 # Input parameters
 parameters:
@@ -18,7 +18,7 @@ parameters:
     type: string
     label: Snapshot Id
     description: Snapshot to be used for compute instance
-    default: "7eaec18a-ff36-43ed-b9b3-13db74e8cbb7"
+    default: "f4de187d-7b6c-41f9-93b7-6296435c76c9"
   k5_ubuntu_image:
     type: string
     label: Image name or ID
