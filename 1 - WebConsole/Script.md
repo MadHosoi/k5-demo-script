@@ -7,7 +7,7 @@ Allocate Public IP
 
 # Connect via SSH
 
-ssh -i Secrets/cnets-mdiego.pem ubuntu@<externalip>
+ssh -i Secrets/cnets-mdiego.pem ubuntu@194.140.26.99
 
 # Run docker instance
 
